@@ -10,8 +10,8 @@ function App() {
       </Route>
       <Route path="/login" element={<SocialLogin />}>
       </Route>
-      <Route path="/signup"> element={<Registration />}
-      </Route>
+      {/* <Route path="/signup"> element={<Registration />}
+      </Route> */}
     </Routes>
   );
 }

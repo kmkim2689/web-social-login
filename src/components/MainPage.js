@@ -1,9 +1,46 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { H1, Paragraph } from './Components';
 import { Link } from 'react-router-dom';
+import KakaoLogin from 'react-kakao-login';
 
 function MainPage() {
+
+    const CLIENT_ID = "6f0cc6b79f0415550390c0c0e47a9f07";
+
+    const [accessToken, setAccessToken] = useState(null);
+    const [isLoggedIn, setLoggedIn] = useState(false);
+    const [imgUrl, setImgUrl] = useState(null);
+    const [nickname, setNickname] = useState(null);
+    const [email, setEmail] = useState(null);
+
+    // 성공 시 동작을 정의
+    const onSuccess = async (data) => {
+        // 카카오 로그인 성공 시 오는 데이터(토큰을 비롯한 여러 데이터들의 객체가 명시)
+        setLoggedIn(true);
+        console.log(isLoggedIn, data);
+        setAccessToken(data.response.access_token);
+        setImgUrl(data.profile.properties.profile_image);
+        setNickname(data.profile.properties.nickname);
+        setEmail(data.profile.kakao_account.email);
+        console.log(accessToken, imgUrl, nickname, email)
+    }
+
+    // 실패 시 동작을 정의
+    const onFailure = (error) => {
+        setLoggedIn(false);
+        console.log(isLoggedIn, error);
+    }
+
+    const logout = () => {
+        setLoggedIn(false);
+        setAccessToken(null);
+        setImgUrl(null);
+        setNickname(null);
+        setEmail(null);
+        console.log(accessToken, imgUrl, nickname, email)
+    }
+
     const Section = styled.div`
         background-image: linear-gradient(103.24deg, rgba(0, 8, 29, 0.9) 23.83%, rgba(0, 8, 29, 0.3) 96.1%), url("https://assets.nflxext.com/ffe/siteui/vlv3/ceb3b1eb-2673-4dd9-a6e3-0cd7a5e130ee/d110b57b-6acd-48f7-9626-01e92c747b19/KR-ko-20230522-popsignuptwoweeks-perspective_alpha_website_large.jpg");
         width: 100%;
@@ -51,17 +88,71 @@ function MainPage() {
         padding: 80px;
     `;
 
-    function kakaoLogin() {
-        
-    }
+    const UserInfo = styled.div`
+        width: 20%;
+        height: 100%
+        min-width: 300px;
+        display: flex;
+        flex-direction: row;
+        position: absolute;
+        right: 100px;
+    `;
 
+    const ProfileImage = styled.img`
+        width: 30%;
+        border-radius: 50%;
+    `;
+
+    const UserInfoText = styled.div`
+        width: 70%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        margin-left: 20px;
+        color: white;
+        font-size: 16px;
+    `;
+
+    const Nickname = styled.div`
+        width: 100%
+        font-weight: 900;
+    `;
+
+    const Email = styled.div`
+        width: 100%;
+    `;
+
+    const Logout = styled.button`
+        width: 50%;
+        background-color: white;
+        color: black;
+        border: 3px solid gray;
+        border-radius: 10%;
+    `;
     
-
   return (
     <Section>
         <Nav>
             <Logo src='https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1198px-Netflix_2015_logo.svg.png?20190206123158'/>
-            <Btn src='https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_medium_narrow.png' onClick={kakaoLogin} />
+            {isLoggedIn ? null : (
+                <KakaoLogin
+                    token={CLIENT_ID}
+                    onSuccess={onSuccess}
+                    onFailure={onFailure} />
+            )}
+
+            {isLoggedIn ? (
+                <UserInfo>
+                    <ProfileImage src={imgUrl} />
+                    <UserInfoText>
+                        <Nickname>{nickname}</Nickname>
+                        <Email>{email}</Email>
+                        <Logout onClick={logout}>로그아웃</Logout>
+                    </UserInfoText>
+                </UserInfo>
+            ) : null}
+            
+
         </Nav>
         <Description>
             <H1>영화, 시리즈 등을 무제한으로</H1>
