@@ -8,7 +8,7 @@ function MainPage() {
 
     const CLIENT_ID = "6f0cc6b79f0415550390c0c0e47a9f07";
 
-    const [accessToken, setAccessToken] = useState(null);
+    const [accessToken, setAccessToken] = useState(localStorage.getItem("accessToken"));
     const [isLoggedIn, setLoggedIn] = useState(false);
     const [imgUrl, setImgUrl] = useState(null);
     const [nickname, setNickname] = useState(null);
@@ -23,7 +23,11 @@ function MainPage() {
         setImgUrl(data.profile.properties.profile_image);
         setNickname(data.profile.properties.nickname);
         setEmail(data.profile.kakao_account.email);
-        console.log(accessToken, imgUrl, nickname, email)
+        console.log(accessToken, imgUrl, nickname, email);
+        localStorage.setItem("accessToken", data.response.access_token);
+        localStorage.setItem("profileUrl", data.profile.properties.profile_image);
+        localStorage.setItem("email", data.profile.kakao_account.email);
+        localStorage.setItem("userName", data.profile.properties.nickname)
     }
 
     // 실패 시 동작을 정의
@@ -38,7 +42,11 @@ function MainPage() {
         setImgUrl(null);
         setNickname(null);
         setEmail(null);
-        console.log(accessToken, imgUrl, nickname, email)
+        console.log(accessToken, imgUrl, nickname, email);
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("profileUrl")
+        localStorage.removeItem("email")
+        localStorage.removeItem("userName")
     }
 
     const Section = styled.div`
@@ -134,19 +142,19 @@ function MainPage() {
     <Section>
         <Nav>
             <Logo src='https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/1198px-Netflix_2015_logo.svg.png?20190206123158'/>
-            {isLoggedIn ? null : (
+            {accessToken ? null : (
                 <KakaoLogin
                     token={CLIENT_ID}
                     onSuccess={onSuccess}
                     onFailure={onFailure} />
             )}
 
-            {isLoggedIn ? (
+            {accessToken ? (
                 <UserInfo>
-                    <ProfileImage src={imgUrl} />
+                    <ProfileImage src={localStorage.getItem("profileUrl")} />
                     <UserInfoText>
-                        <Nickname>{nickname}</Nickname>
-                        <Email>{email}</Email>
+                        <Nickname>{localStorage.getItem("userName")}</Nickname>
+                        <Email>{localStorage.getItem("email")}</Email>
                         <Logout onClick={logout}>로그아웃</Logout>
                     </UserInfoText>
                 </UserInfo>
